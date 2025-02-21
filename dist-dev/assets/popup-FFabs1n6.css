@@ -1,0 +1,1 @@
+.ripple{position:absolute;width:20px;height:20px;background:#ff000080;border-radius:50%;transform:scale(0);animation:ripple-effect .5s linear}@keyframes ripple-effect{0%{transform:scale(0);opacity:1}to{transform:scale(5);opacity:0}}

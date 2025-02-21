@@ -1,8 +1,12 @@
-import { createRoot } from 'react-dom/client';
-import HelloWorld from './components/HelloWorld';
-const mountNode = document.createElement('div');
-mountNode.id = 'tailwind-react-google-extension-boilerplate';
-document.body.appendChild(mountNode);
+document.addEventListener('click', function (e) {
+  const ripple = document.createElement('div');
+  ripple.classList.add('ripple');
+  document.body.appendChild(ripple);
 
-const root = createRoot(mountNode);
-root.render(<HelloWorld />);
+  ripple.style.left = `${e.clientX - 10}px`;
+  ripple.style.top = `${e.clientY - 10}px`;
+
+  setTimeout(() => {
+    ripple.remove();
+  }, 500);
+});

@@ -1,0 +1,1 @@
+(function(){"use strict";document.addEventListener("click",function(t){const e=document.createElement("div");e.classList.add("ripple"),document.body.appendChild(e),e.style.left=`${t.clientX-10}px`,e.style.top=`${t.clientY-10}px`,setTimeout(()=>{e.remove()},500)})})();
