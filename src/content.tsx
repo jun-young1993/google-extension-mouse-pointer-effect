@@ -1,9 +1,6 @@
 document.addEventListener(
   'click',
   function (e) {
-    // Stop propagation to prevent interference with other click events
-    e.stopPropagation();
-
     // Check if click target is not a ripple element
     if (!(e.target as HTMLElement).classList.contains('ripple')) {
       const ripple = document.createElement('div');
