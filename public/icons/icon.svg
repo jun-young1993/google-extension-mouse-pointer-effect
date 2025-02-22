@@ -1,0 +1,6 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 마우스 포인터 모양 -->
+  <path d="M30 20L50 90L65 65L90 80L30 20Z" fill="white" stroke="#2563eb" stroke-width="4"/>
+  <!-- 클릭 효과를 나타내는 원 -->
+  <circle cx="90" cy="80" r="15" fill="#2563eb" fill-opacity="0.3"/>
+</svg> 
