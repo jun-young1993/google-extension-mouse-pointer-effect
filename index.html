@@ -3,13 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Google Extension Tab Manager Settings</title>
+  <title>Google Extension Mouse Pointer Effect</title>
   <!-- Tailwind CSS -->
   <link href="/src/styles/tailwind.css" rel="stylesheet">
+  <style>
+    body {
+        width: 500px;  /* 원하는 너비 */
+        height: 500px; /* 원하는 높이 */
+    }
+</style>
 </head>
 <body class="bg-gray-100">
   <!-- React Application Mount Point -->
-  <div id="root"></div>
+  <div id="root" class="w-full h-full"></div>
   <!-- Main Script -->
   <script type="module" src="/src/main.tsx"></script>
 </body>

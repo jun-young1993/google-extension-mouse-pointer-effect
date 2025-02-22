@@ -4,7 +4,8 @@
   "version": "1.0",
   "description": "Mouse Pointer Effect",
   "permissions": [
-    "scripting"
+    "scripting",
+    "storage"
   ],
   "background": {
     "service_worker": "background.js"
@@ -24,9 +25,6 @@
       ],
       "js": [
         "content.js"
-      ],
-      "css": [
-        "tailwind.css"
       ]
     }
   ],

@@ -34,7 +34,6 @@ console.log('Checking if dist folder exists...');
 if (!fs.existsSync('dist')) {
   handleError('Error: dist folder does not exist');
 }
-
 console.log('Starting build script...');
 
 // Delete existing dist-dev folder if it exists
