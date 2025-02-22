@@ -1,5 +1,5 @@
 import ItemBox from '../components/ItemBox';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import Options from './Options';
 import Effect, {
   EffectTypes,
@@ -8,112 +8,96 @@ import Effect, {
 import ToggleButton from './ToggleButton';
 
 const Popup = () => {
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [color, setColor] = useState<{ r: number; g: number; b: number }>({
-    r: 255,
-    g: 0,
-    b: 0,
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [settings, setSettings] = useState({
+    color: { r: 255, g: 0, b: 0 },
+    radius: 0,
+    size: 10,
+    selectedEffect: effectTypes[0] as EffectTypes,
   });
-  const [radius, setRadius] = useState(0);
-  const [size, setSize] = useState(10);
-  const [selectedEffect, setSelectedEffect] = useState<EffectTypes>(
-    effectTypes[0]
-  );
-  // const [isChanged, setIsChanged] = useState<boolean>(false);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+
   useEffect(() => {
-    const loadColor = async () => {
-      const storedColor = await chrome.storage.sync.get(['color']);
-      const storedRadius = await chrome.storage.sync.get(['radius']);
-      const storedSize = await chrome.storage.sync.get(['size']);
-      const storedSelectedEffect = await chrome.storage.sync.get([
-        'selectedEffect',
-      ]);
-      if (storedColor.color) {
-        setColor(storedColor.color);
-      }
-      if (storedRadius.radius) {
-        setRadius(storedRadius.radius);
-      }
-      if (storedSize.size) {
-        setSize(storedSize.size);
-      }
-      if (storedSelectedEffect.selectedEffect) {
-        setSelectedEffect(storedSelectedEffect.selectedEffect);
+    const loadSettings = async () => {
+      const stored = await chrome.storage.sync.get(['settings']);
+      if (stored.settings) {
+        setSettings((prev) => ({
+          ...prev,
+          ...(stored.settings.color && { color: stored.settings.color }),
+          ...(stored.settings.radius && { radius: stored.settings.radius }),
+          ...(stored.settings.size && { size: stored.settings.size }),
+          ...(stored.settings.selectedEffect && {
+            selectedEffect: stored.settings.selectedEffect,
+          }),
+        }));
+        setIsInitialized(true);
       }
     };
-    loadColor();
+
+    loadSettings();
+    window.addEventListener('storage', loadSettings);
+    return () => window.removeEventListener('storage', loadSettings);
   }, []);
 
-  const togglePanel = () => {
-    setIsPanelOpen(!isPanelOpen);
-  };
-  const saveOptions = () => {
+  const handleSettingsUpdate = useCallback(
+    (newSettings: Partial<typeof settings>) => {
+      setSettings((prev) => ({ ...prev, ...newSettings }));
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (!isInitialized) return;
+
     chrome.storage.sync.set({
-      color,
-      radius,
-      size,
-      selectedEffect,
+      settings,
     });
-  };
+  }, [settings, isInitialized]);
+
+  const renderEffectItems = useMemo(
+    () =>
+      effectTypes.map((effectType) => (
+        <ItemBox
+          key={effectType}
+          isSelected={settings.selectedEffect === effectType}
+          onClick={() => handleSettingsUpdate({ selectedEffect: effectType })}
+        >
+          <Effect
+            effectType={effectType}
+            size={`${settings.size}px`}
+            color={`rgba(${settings.color.r}, ${settings.color.g}, ${settings.color.b}, 0.44)`}
+            useInfinity={true}
+            radius={`${settings.radius}%`}
+          />
+        </ItemBox>
+      )),
+    [settings, handleSettingsUpdate]
+  );
 
   return (
     <div className="w-full h-full mt-2 mx-2">
       <div className="flex justify-between items-center mx-4">
-        <button
-          type="button"
-          className="text-xs text-white bg-blue-400 dark:bg-blue-500 cursor-not-allowed font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-          // disabled={isChanged === false}
-          onClick={saveOptions}
-        >
-          Save Settings
-        </button>
         <ToggleButton
           label="Options"
           checked={isPanelOpen}
-          onChange={togglePanel}
+          onChange={() => setIsPanelOpen((prev) => !prev)}
         />
       </div>
       <div className={`flex ${isPanelOpen ? 'flex-row' : 'flex-col'} mx-4`}>
         <div
           className={`${isPanelOpen ? 'flex-grow' : 'w-full'} grid grid-cols-3 gap-4`}
         >
-          {effectTypes.map((effectType) => (
-            <ItemBox
-              key={effectType}
-              isSelected={selectedEffect == effectType}
-              onClick={() => {
-                setSelectedEffect(effectType);
-                // setIsChanged(true);
-              }}
-            >
-              <Effect
-                effectType={effectType}
-                size={`${size}px`}
-                color={`rgba(${color.r}, ${color.g}, ${color.b}, 0.44)`}
-                useInfinity={true}
-                radius={`${radius}%`}
-              />
-            </ItemBox>
-          ))}
+          {renderEffectItems}
         </div>
         {isPanelOpen && (
           <div className="flex-grow-2 shadow-lg p-4 h-full">
             <Options
-              onColorChange={(color) => {
-                setColor(color);
-                // setIsChanged(true);
-              }}
-              colors={color}
-              radius={radius}
-              onRadiusChange={(value) => {
-                setRadius(value);
-                // setIsChanged(true);
-              }}
-              size={size}
-              onSizeChange={(value) => {
-                setSize(value);
-                // setIsChanged(true);
-              }}
+              onColorChange={(color) => handleSettingsUpdate({ color })}
+              colors={settings.color}
+              radius={settings.radius}
+              onRadiusChange={(radius) => handleSettingsUpdate({ radius })}
+              size={settings.size}
+              onSizeChange={(size) => handleSettingsUpdate({ size })}
             />
           </div>
         )}

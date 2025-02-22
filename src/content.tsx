@@ -1,63 +1,65 @@
 import Effect from './components/effect-styled/Effect';
 import ReactDOM from 'react-dom/client';
 
-// 페이지 로드 시 즉시 실행
-applyStyle();
-chrome.storage.sync.get(['selected'], (result) => {
-  if (result.selected) {
-    applyStyle();
-  }
-});
+// 전역 변수로 설정값 저장
+let cachedSettings = {
+  color: { r: 255, g: 0, b: 0 },
+  size: 20,
+  radius: 0,
+  selectedEffect: 'ripple' as const,
+};
 
-chrome.runtime.onMessage.addListener(() => {
-  applyStyle();
+// 초기 설정값 로드
+function loadSettings() {
+  chrome.storage.sync.get(['settings'], (result) => {
+    if (result.settings) {
+      cachedSettings = result.settings;
+    }
+  });
+}
+
+// 페이지 로드 시 즉시 실행
+loadSettings();
+applyStyle();
+
+// chrome storage 변경 감지
+chrome.storage.onChanged.addListener((changes) => {
+  if (changes.settings) {
+    cachedSettings = changes.settings.newValue;
+  }
 });
 
 function applyStyle() {
   document.addEventListener(
     'click',
     function (e) {
-      // id로 ripple 요소 체크
       const id = 'google-extension-mouse-pointer-effect';
-      console.log('document.getElementById(id)', document.getElementById(id));
       if (!document.getElementById(id)) {
         const ripple = document.createElement('div');
         ripple.id = id;
         document.body.appendChild(ripple);
-        // React 요소를 DOM에 렌더링
 
-        chrome.storage.sync.get(
-          ['color', 'size', 'radius', 'selectedEffect'],
-          (result) => {
-            console.log('result', result);
-            const size = `${result.size || 20}px`;
-            const background = result.color
-              ? `rgba(${result.color.r}, ${result.color.g}, ${result.color.b}, 0.44)`
-              : 'rgba(255, 0, 0, 0.44)';
-            const radius = `${result.radius || 0}%`;
-            const root = ReactDOM.createRoot(ripple);
-            const effectType = result.selectedEffect || 'ripple';
-            root.render(
-              <Effect
-                effectType={effectType}
-                radius={radius}
-                size={size}
-                color={background}
-              />
-            );
-
-            ripple.style.width = size;
-            ripple.style.height = size;
-            ripple.style.position = 'absolute';
-            ripple.style.left = `${e.pageX - 10}px`;
-            ripple.style.top = `${e.pageY - 10}px`;
-            ripple.style.pointerEvents = 'none';
-            setTimeout(() => {
-              root.unmount(); // React 컴포넌트 정리
-              ripple.remove();
-            }, 500);
-          }
+        const root = ReactDOM.createRoot(ripple);
+        root.render(
+          <Effect
+            effectType={cachedSettings.selectedEffect}
+            radius={`${cachedSettings.radius}%`}
+            size={`${cachedSettings.size}px`}
+            color={`rgba(${cachedSettings.color.r}, ${cachedSettings.color.g}, ${cachedSettings.color.b}, 0.44)`}
+          />
         );
+
+        ripple.style.width = `${cachedSettings.size}px`;
+        ripple.style.height = `${cachedSettings.size}px`;
+        ripple.style.position = 'absolute';
+        ripple.style.left = `${e.pageX - 10}px`;
+        ripple.style.top = `${e.pageY - 10}px`;
+        ripple.style.pointerEvents = 'none';
+
+        setTimeout(() => {
+          root.unmount();
+          ripple.remove();
+        }, 500);
       }
     },
     { capture: true }
