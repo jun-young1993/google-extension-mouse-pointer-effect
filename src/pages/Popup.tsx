@@ -6,7 +6,10 @@ import Effect, {
   effectTypes,
 } from '../components/effect-styled/Effect';
 import ToggleButton from './ToggleButton';
+import Tabs from '../components/Tabs';
+import Trail from '../components/trail-styled/Trail';
 
+const tabs = ['Effect', 'Trail'];
 const Popup = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [settings, setSettings] = useState({
@@ -15,6 +18,7 @@ const Popup = () => {
     size: 10,
     selectedEffect: effectTypes[0] as EffectTypes,
   });
+  const [activeTab, setActiveTab] = useState(tabs[0]);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   useEffect(() => {
@@ -74,6 +78,17 @@ const Popup = () => {
     [settings, handleSettingsUpdate]
   );
 
+  const renderTrailItems = useMemo(() => {
+    return (
+      <ItemBox isSelected={false} onClick={() => {}}>
+        <Trail
+          size={`${settings.size}px`}
+          color={`rgba(${settings.color.r}, ${settings.color.g}, ${settings.color.b}, 0.44)`}
+          usePreview={true}
+        />
+      </ItemBox>
+    );
+  }, [settings]);
   return (
     <div className="w-full h-full mt-2 mx-2">
       <div className="flex justify-between items-center mx-4">
@@ -83,11 +98,15 @@ const Popup = () => {
           onChange={() => setIsPanelOpen((prev) => !prev)}
         />
       </div>
-      <div className={`flex ${isPanelOpen ? 'flex-row' : 'flex-col'} mx-4`}>
+      <Tabs items={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+      <div
+        className={`flex ${isPanelOpen ? 'flex-row' : 'flex-col'} mx-4 border border-gray-200 p-1`}
+      >
         <div
           className={`${isPanelOpen ? 'flex-grow' : 'w-full'} grid grid-cols-3 gap-4`}
         >
-          {renderEffectItems}
+          {activeTab === tabs[0] && renderEffectItems}
+          {activeTab === tabs[1] && renderTrailItems}
         </div>
         {isPanelOpen && (
           <div className="flex-grow-2 shadow-lg p-4 h-full">
