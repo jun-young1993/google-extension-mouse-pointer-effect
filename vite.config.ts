@@ -16,13 +16,17 @@ const commonConfig = defineConfig({
 const contentConfig = defineConfig({
   ...commonConfig,
   build: {
-    rollupOptions: {
-      input: './src/content.tsx', // content.tsx만 빌드
-      output: {
-        format: 'iife', // IIFE 형식
-        entryFileNames: 'content.js',
-      },
-    },
+    rollupOptions: process.env.COMPONENT_NAME
+      ? {
+          input: `./src/components/preview/${process.env.COMPONENT_NAME}.tsx`,
+        }
+      : {
+          input: './src/content.tsx', // content.tsx만 빌드
+          output: {
+            format: 'iife', // IIFE 형식
+            entryFileNames: 'content.js',
+          },
+        },
     outDir: 'dist', // 별도의 출력 디렉토리
     emptyOutDir: false, // 기존 빌드 결과 유지
   },

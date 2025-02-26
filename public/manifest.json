@@ -3,7 +3,7 @@
   "name": "Mouse Pointer Effect",
   "version": "1.0",
   "description": "Mouse Pointer Effect",
-  "permissions": ["scripting", "storage"],
+  "permissions": ["storage"],
   "background": {
     "service_worker": "background.js" 
   },

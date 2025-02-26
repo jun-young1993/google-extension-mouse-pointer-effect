@@ -5,42 +5,70 @@ import Effect, {
   EffectTypes,
   effectTypes,
 } from '../components/effect-styled/Effect';
-import ToggleButton from './ToggleButton';
+import ToggleButton from '../components/ToggleButton';
 import Tabs from '../components/Tabs';
-import Trail from '../components/trail-styled/Trail';
+import Trail, {
+  trailTypes,
+  TrailTypes,
+} from '../components/trail-styled/Trail';
 
 const tabs = ['Effect', 'Trail'];
+
+interface Settings {
+  color: { r: number; g: number; b: number };
+  radius: number;
+  size: number;
+  selectedEffect: EffectTypes;
+  selectedTrail: TrailTypes;
+  effectType: string;
+  useInfinity: boolean;
+}
+
 const Popup = () => {
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [settings, setSettings] = useState({
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
+  const [settings, setSettings] = useState<Settings>({
     color: { r: 255, g: 0, b: 0 },
     radius: 0,
     size: 10,
     selectedEffect: effectTypes[0] as EffectTypes,
+    selectedTrail: trailTypes[0] as TrailTypes,
+    effectType: 'default',
+    useInfinity: false,
   });
   const [activeTab, setActiveTab] = useState(tabs[0]);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-
-  useEffect(() => {
-    const loadSettings = async () => {
-      const stored = await chrome.storage.sync.get(['settings']);
-      if (stored.settings) {
+  const isDev = process.env.NODE_ENV === 'development';
+  const isChrome = chrome.storage ? true : false;
+  const loadSettings = async () => {
+    try {
+      if (isChrome) {
+        const result = await chrome.storage.sync.get({
+          effectType: 'default',
+          useInfinity: false,
+        });
         setSettings((prev) => ({
           ...prev,
-          ...(stored.settings.color && { color: stored.settings.color }),
-          ...(stored.settings.radius && { radius: stored.settings.radius }),
-          ...(stored.settings.size && { size: stored.settings.size }),
-          ...(stored.settings.selectedEffect && {
-            selectedEffect: stored.settings.selectedEffect,
+          ...result,
+          ...(result.color && { color: result.color }),
+          ...(result.radius && { radius: result.radius }),
+          ...(result.size && { size: result.size }),
+          ...(result.selectedEffect && {
+            selectedEffect: result.selectedEffect,
           }),
+          ...(result.selectedTrail && { selectedTrail: result.selectedTrail }),
         }));
         setIsInitialized(true);
+      } else {
+        throw new Error('Not running in Chrome browser');
       }
-    };
+    } catch (error) {
+      console.error('[loadSettings error]', error);
+      setIsInitialized(true);
+    }
+  };
 
+  useEffect(() => {
     loadSettings();
-    window.addEventListener('storage', loadSettings);
-    return () => window.removeEventListener('storage', loadSettings);
   }, []);
 
   const handleSettingsUpdate = useCallback(
@@ -52,10 +80,12 @@ const Popup = () => {
 
   useEffect(() => {
     if (!isInitialized) return;
-
-    chrome.storage.sync.set({
-      settings,
-    });
+    setSettings((prev) => ({ ...prev, ...settings }));
+    if (isChrome) {
+      chrome.storage.sync.set({
+        settings,
+      });
+    }
   }, [settings, isInitialized]);
 
   const renderEffectItems = useMemo(
@@ -79,15 +109,22 @@ const Popup = () => {
   );
 
   const renderTrailItems = useMemo(() => {
-    return (
-      <ItemBox isSelected={false} onClick={() => {}}>
+    return trailTypes.map((trailType) => (
+      <ItemBox
+        key={trailType}
+        isSelected={settings.selectedTrail === trailType}
+        onClick={() => handleSettingsUpdate({ selectedTrail: trailType })}
+      >
         <Trail
+          trailType={trailType}
           size={`${settings.size}px`}
           color={`rgba(${settings.color.r}, ${settings.color.g}, ${settings.color.b}, 0.44)`}
           usePreview={true}
+          effectType={settings.selectedEffect}
+          useInfinity={true}
         />
       </ItemBox>
-    );
+    ));
   }, [settings]);
   return (
     <div className="w-full h-full mt-2 mx-2">
@@ -121,6 +158,15 @@ const Popup = () => {
           </div>
         )}
       </div>
+      {isDev && (
+        <Trail
+          trailType={settings.selectedTrail}
+          size={`${settings.size}px`}
+          color={`rgba(${settings.color.r}, ${settings.color.g}, ${settings.color.b}, 0.44)`}
+          effectType={'ripple'}
+          useInfinity={false}
+        />
+      )}
     </div>
   );
 };

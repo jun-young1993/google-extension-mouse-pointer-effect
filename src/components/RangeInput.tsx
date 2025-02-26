@@ -19,7 +19,7 @@ const RangeInput = ({
     onChange(newValue);
   };
   return (
-    <>
+    <div className="inline-flex items-center gap-2">
       <label
         htmlFor={`${label}-range`}
         className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -38,7 +38,7 @@ const RangeInput = ({
         onChange={handleChange}
         className="w-full h-2 rounded-lg cursor-pointer"
       />
-    </>
+    </div>
   );
 };
 
