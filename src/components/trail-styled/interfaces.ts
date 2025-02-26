@@ -11,7 +11,7 @@ export interface TrailProps {
   color?: string;
   maxParticles?: number;
   usePreview?: boolean;
-  useInfinity: boolean;
+  useInfinity?: boolean;
 }
 
 export type PreviewTrailProps = TrailProps & PreviewContainerProps;

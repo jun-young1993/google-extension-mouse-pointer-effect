@@ -41,7 +41,9 @@ const Trail = (props: TrailProps & ContainerProps) => {
       {TrailType.sparkle === trailType && (
         <SparkleTrail {...props} containerRef={containerRef} />
       )}
-      {TrailType.clock === trailType && <ClockTrail />}
+      {TrailType.clock === trailType && (
+        <ClockTrail {...props} containerRef={containerRef} />
+      )}
     </Container>
   );
 };

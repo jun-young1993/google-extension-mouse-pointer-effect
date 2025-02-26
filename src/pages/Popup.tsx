@@ -24,6 +24,15 @@ interface Settings {
   useInfinity: boolean;
 }
 
+// 디바운스 함수 정의
+function debounce(func: (...args: unknown[]) => void, wait: number) {
+  let timeout: NodeJS.Timeout;
+  return function (this: unknown, ...args: unknown[]) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
 const Popup = () => {
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [settings, setSettings] = useState<Settings>({
@@ -78,15 +87,25 @@ const Popup = () => {
     []
   );
 
+  // 디바운스된 저장 함수 생성
+  const debouncedSaveSettings = useMemo(
+    () =>
+      debounce((...args: unknown[]) => {
+        const newSettings = args[0] as Settings;
+        if (isChrome) {
+          chrome.storage.sync.set({ settings: newSettings }, () => {
+            console.log('Settings saved:', newSettings);
+          });
+        }
+      }, 1000), // 1초 대기
+    [isChrome]
+  );
+
   useEffect(() => {
     if (!isInitialized) return;
     setSettings((prev) => ({ ...prev, ...settings }));
-    if (isChrome) {
-      chrome.storage.sync.set({
-        settings,
-      });
-    }
-  }, [settings, isInitialized]);
+    debouncedSaveSettings(settings); // 디바운스된 저장 함수 호출
+  }, [settings, isInitialized, debouncedSaveSettings]);
 
   const renderEffectItems = useMemo(
     () =>
@@ -120,7 +139,6 @@ const Popup = () => {
           size={`${settings.size}px`}
           color={`rgba(${settings.color.r}, ${settings.color.g}, ${settings.color.b}, 0.44)`}
           usePreview={true}
-          effectType={settings.selectedEffect}
           useInfinity={true}
         />
       </ItemBox>

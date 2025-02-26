@@ -99,7 +99,6 @@ function applyTrail() {
         trailType={cachedSettings.selectedTrail}
         size={`${cachedSettings.size}px`}
         color={`rgba(${cachedSettings.color.r}, ${cachedSettings.color.g}, ${cachedSettings.color.b}, 0.44)`}
-        effectType={cachedSettings.selectedEffect}
         useInfinity={true}
       />
     );
