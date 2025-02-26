@@ -2,9 +2,11 @@ import styled from 'styled-components';
 import { useRef } from 'react';
 import SparkleTrail from './SparkleTrail';
 import { ContainerProps, TrailProps } from './interfaces';
+import ClockTrail from './ClockTrail';
 
 export const TrailType = {
   sparkle: 'sparkle',
+  clock: 'clock',
 } as const;
 export type TrailTypes = keyof typeof TrailType;
 export const trailTypes = Object.keys(TrailType) as TrailTypes[];
@@ -28,7 +30,7 @@ const PreviewContainer = styled.div`
 `;
 
 const Trail = (props: TrailProps & ContainerProps) => {
-  const { usePreview = false } = props;
+  const { usePreview = false, trailType } = props;
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -36,9 +38,10 @@ const Trail = (props: TrailProps & ContainerProps) => {
 
   return (
     <Container ref={containerRef}>
-      {TrailType.sparkle && (
+      {TrailType.sparkle === trailType && (
         <SparkleTrail {...props} containerRef={containerRef} />
       )}
+      {TrailType.clock === trailType && <ClockTrail />}
     </Container>
   );
 };

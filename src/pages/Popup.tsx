@@ -163,7 +163,6 @@ const Popup = () => {
           trailType={settings.selectedTrail}
           size={`${settings.size}px`}
           color={`rgba(${settings.color.r}, ${settings.color.g}, ${settings.color.b}, 0.44)`}
-          effectType={'ripple'}
           useInfinity={false}
         />
       )}

@@ -11,7 +11,6 @@ export interface TrailProps {
   color?: string;
   maxParticles?: number;
   usePreview?: boolean;
-  effectType: string;
   useInfinity: boolean;
 }
 
