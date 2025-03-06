@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { useRef } from 'react';
 import SparkleTrail from './SparkleTrail';
 import { ContainerProps, TrailProps } from './interfaces';
-import ClockTrail from './ClockTrail';
+// import ClockTrail from './ClockTrail';
 
 export const TrailType = {
   sparkle: 'sparkle',
@@ -42,7 +42,8 @@ const Trail = (props: TrailProps & ContainerProps) => {
         <SparkleTrail {...props} containerRef={containerRef} />
       )}
       {TrailType.clock === trailType && (
-        <ClockTrail {...props} containerRef={containerRef} />
+        // <ClockTrail {...props} containerRef={containerRef} />
+        <div>Coming in next patch...</div>
       )}
     </Container>
   );
