@@ -1,25 +1,17 @@
 import ItemBox from '../components/ItemBox';
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import Options from './Options';
+// import Options from './Options';
 import Effect, {
   EffectTypes,
   effectTypes,
 } from '../components/effect-styled/Effect';
-import ToggleButton from '../components/ToggleButton';
-import Tabs from '../components/Tabs';
-import Trail, {
-  trailTypes,
-  TrailTypes,
-} from '../components/trail-styled/Trail';
-
-const tabs = ['Effect', 'Trail'];
+// import ToggleButton from '../components/ToggleButton';
 
 interface Settings {
   color: { r: number; g: number; b: number };
   radius: number;
   size: number;
   selectedEffect: EffectTypes;
-  selectedTrail: TrailTypes;
   effectType: string;
   useInfinity: boolean;
 }
@@ -40,13 +32,10 @@ const Popup = () => {
     radius: 0,
     size: 10,
     selectedEffect: effectTypes[0] as EffectTypes,
-    selectedTrail: trailTypes[0] as TrailTypes,
     effectType: 'default',
     useInfinity: false,
   });
-  const [activeTab, setActiveTab] = useState(tabs[0]);
-  const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const isDev = process.env.NODE_ENV === 'development';
+  // const [isPanelOpen, setIsPanelOpen] = useState(false);
   const isChrome = chrome.storage ? true : false;
   const loadSettings = async () => {
     try {
@@ -115,55 +104,37 @@ const Popup = () => {
           isSelected={settings.selectedEffect === effectType}
           onClick={() => handleSettingsUpdate({ selectedEffect: effectType })}
         >
-          <Effect
+          <div>effect</div>
+          {/* <Effect
             effectType={effectType}
             size={`${settings.size}px`}
             color={`rgba(${settings.color.r}, ${settings.color.g}, ${settings.color.b}, 0.44)`}
             useInfinity={true}
             radius={`${settings.radius}%`}
-          />
+          /> */}
         </ItemBox>
       )),
     [settings, handleSettingsUpdate]
   );
 
-  const renderTrailItems = useMemo(() => {
-    return trailTypes.map((trailType) => (
-      <ItemBox
-        key={trailType}
-        isSelected={settings.selectedTrail === trailType}
-        onClick={() => handleSettingsUpdate({ selectedTrail: trailType })}
-      >
-        <Trail
-          trailType={trailType}
-          size={`${settings.size}px`}
-          color={`rgba(${settings.color.r}, ${settings.color.g}, ${settings.color.b}, 0.44)`}
-          usePreview={true}
-          useInfinity={true}
-        />
-      </ItemBox>
-    ));
-  }, [settings]);
   return (
     <div className="w-full h-full mt-2 mx-2">
       <div className="flex justify-between items-center mx-4">
-        <ToggleButton
+        {/* <ToggleButton
           label="Options"
           checked={isPanelOpen}
           onChange={() => setIsPanelOpen((prev) => !prev)}
-        />
+        /> */}
       </div>
-      <Tabs items={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
       <div
         className={`flex ${isPanelOpen ? 'flex-row' : 'flex-col'} mx-4 border border-gray-200 p-1`}
       >
         <div
           className={`${isPanelOpen ? 'flex-grow' : 'w-full'} grid grid-cols-3 gap-4`}
         >
-          {activeTab === tabs[0] && renderEffectItems}
-          {activeTab === tabs[1] && renderTrailItems}
+          {renderEffectItems}
         </div>
-        {isPanelOpen && (
+        {/* {isPanelOpen && (
           <div className="flex-grow-2 shadow-lg p-4 h-full">
             <Options
               onColorChange={(color) => handleSettingsUpdate({ color })}
@@ -174,16 +145,8 @@ const Popup = () => {
               onSizeChange={(size) => handleSettingsUpdate({ size })}
             />
           </div>
-        )}
+        )} */}
       </div>
-      {isDev && (
-        <Trail
-          trailType={settings.selectedTrail}
-          size={`${settings.size}px`}
-          color={`rgba(${settings.color.r}, ${settings.color.g}, ${settings.color.b}, 0.44)`}
-          useInfinity={false}
-        />
-      )}
     </div>
   );
 };

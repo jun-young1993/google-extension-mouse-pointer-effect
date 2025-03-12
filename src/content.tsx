@@ -1,6 +1,5 @@
 import Effect from './components/effect-styled/Effect';
 import ReactDOM from 'react-dom/client';
-import Trail from './components/trail-styled/Trail';
 
 const effectDomId = 'google-extension-mouse-pointer-effect';
 const trailDomId = 'google-extension-mouse-pointer-trail';
@@ -48,7 +47,6 @@ chrome.storage.onChanged.addListener((changes) => {
     cachedSettings = changes.settings.newValue;
     removeExistingElements();
     applyStyle();
-    applyTrail();
   }
 });
 
@@ -88,25 +86,8 @@ function applyStyle() {
   );
 }
 
-function applyTrail() {
-  if (!document.getElementById(trailDomId)) {
-    const trail = document.createElement('div');
-    trail.id = trailDomId;
-    document.body.appendChild(trail);
-    const root = ReactDOM.createRoot(trail);
-    root.render(
-      <Trail
-        trailType={cachedSettings.selectedTrail}
-        size={`${cachedSettings.size}px`}
-        color={`rgba(${cachedSettings.color.r}, ${cachedSettings.color.g}, ${cachedSettings.color.b}, 0.44)`}
-        useInfinity={true}
-      />
-    );
-  }
-}
 console.log('content.tsx loaded');
 loadSettings(() => {
   console.log('loadSettings');
   applyStyle();
-  applyTrail();
 });
